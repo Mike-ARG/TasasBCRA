@@ -1,0 +1,55 @@
+﻿@page "/"
+@using ConsultaDeTasas.Data
+@inject ScrapperService Scrapit
+@inject IJSRuntime Js
+
+<div>
+    <button type="button" class="btn btn-primary" @onclick="Print">Imprimir</button>
+    <table class="table table-striped table-dark">
+        <thead>
+            <tr><th>Fecha y hora: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</th></tr>
+            <tr>
+                <th>Entidades</th>
+                <th>Tasas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (LstData == null)
+            {
+                <tr>Cargando...</tr>
+            }
+            else
+            {
+                @foreach (var item in LstData)
+                {
+                    <tr>
+                        <td>@item.Key</td>
+                        @if (item.Value == '-'.ToString())
+                        {
+                            <td><b>@item.Value</b></td>
+                        }
+                        else
+                        {
+                            <td><b>@item.Value%</b></td>
+                        }
+
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public Dictionary<string, string> LstData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LstData = await Scrapit.ObtenerTasas();
+    }
+
+    private async Task Print()
+    {
+        await Js.InvokeVoidAsync("print");
+    }
+}
